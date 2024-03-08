@@ -4,7 +4,8 @@ const upload = multer();
 const express = require('express')
 const app = express()
 const ClientController = require('../controller/client.controller')
-
+const Jwt = require('../util/jwt')
+const checkPassword = require("../util/checkPassword");
 
 //Inicializamos la instancia de AWS Rekognition
 // b*D09-Bl
@@ -18,16 +19,44 @@ AWS.config.update({
     apiVersion: '2016-06-27'
 })
 
-app.get('/profile_client',async function(req,res)
+app.get('/profile_client',Jwt.checkJwt,async function(req,res)
 {
+    console.log(req.body)
     var data = await ClientController.readProfileClientController(9187)
     res.status(200).json(data)
 })
 
-app.post('/test_api',function (req,res){
-    res.status(200).json({mensaje:'TEST API REST'})
-})
+app.post('/login_client',async function(req,res)
+{
+    console.log("PING LOGIN CLIENT")
+    //console.log(req.body)
+    try{
+        var data = await ClientController.loginClientController(req.body.usuario,req.body.password)
+        var jwt = data.data.length > 0 ? Jwt.createJWT(data.data[0]) : null
 
+        if(jwt != null){
+            if(!await checkPassword(req.body.password,data.data[0].contrasenia_banca))
+            {
+                res.status(401).json({
+                    msm:"SU CONTRASEÑA NO ES CORRECTA."
+                })
+            }else{
+                res.status(200).json({
+                    token:jwt,
+                    first_name:data.data[0].clien_nom_clien.trim(),
+                    last_name:data.data[0].clien_ape_clien.trim().trim(),
+                })
+            }
+        }else{
+            res.status(401).json({
+                msm:'NO SE PUEDO CREAR TOKEN DE ACCESO'
+            })
+        }
+
+    }catch (e) {
+        res.status(500).json({msm:e.toString()})
+    }
+})
 
 app.post('/check_face_id',upload.fields([{ name: 'dni_picture', maxCount: 1 }, { name: 'face_picture', maxCount: 1 }]),async function(req,res)
 {
@@ -74,9 +103,9 @@ app.post('/check_face_id',upload.fields([{ name: 'dni_picture', maxCount: 1 }, {
             })
 
             return res.status(200).json({
-                stadus_code : 200,
-                similarity: parseFloat((response.FaceMatches[0].Similarity).toFixed(2)),
-                msm : "API REST FACE ID OK"
+                stadus_code : response.FaceMatches.length > 0 ? 200 : 300,
+                similarity: response.FaceMatches.length > 0 ? parseFloat((response.FaceMatches[0].Similarity).toFixed(2)) : 0,
+                msm : response.FaceMatches.length == 0 ? "NO SE RETORNO EL FACEMATCHES" : "API REST FACE ID OK"
             })
         })
 
@@ -88,10 +117,9 @@ app.post('/check_face_id',upload.fields([{ name: 'dni_picture', maxCount: 1 }, {
 
 
     } catch (error) {
-        return res.status(400).send({msm:error.toString()})
+        return res.status(500).send({msm:error.toString()})
     }
 })
-
 
 module.exports = app
 
