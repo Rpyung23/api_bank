@@ -7,6 +7,8 @@ const ClientController = require('../controller/client.controller')
 const Jwt = require('../util/jwt')
 const checkPassword = require("../util/checkPassword");
 
+const Notification = require('../util/notification')
+
 //Inicializamos la instancia de AWS Rekognition
 // b*D09-Bl
 // AKIAW4FQIU6WGFAJALUR
@@ -41,10 +43,13 @@ app.post('/login_client',async function(req,res)
                     msm:"SU CONTRASEÑA NO ES CORRECTA."
                 })
             }else{
+
+                Notification.sentNotificationEmail(data.data[0].clien_ide_clien,data.data[0].clien_cod_clien,'INGRESO APP MOVIL','CONTENT PRUEBA INGRESO')
+
                 res.status(200).json({
                     token:jwt,
-                    first_name:data.data[0].clien_nom_clien.trim(),
-                    last_name:data.data[0].clien_ape_clien.trim().trim(),
+                    first_name:data.data[0].clien_nom_clien,
+                    last_name:data.data[0].clien_ape_clien,
                 })
             }
         }else{
