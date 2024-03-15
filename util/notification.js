@@ -26,6 +26,7 @@ class Notification
                 subject: subject, // Subject line
                 html: content, // html body
             });
+            console.log(`NOTIFICATION EMAIL OK : ${data.clien_dir_email}`)
         }catch (e) {
             console.log(`ERROR SEND EMAIL : ${e.toString()}`)
         }

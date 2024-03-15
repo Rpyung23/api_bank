@@ -4,7 +4,8 @@ class TransactionModel {
     {
         try {
             var conn = await connDB()
-            var sql = "SELECT FIRST 10 dmcta_fec_mctad as fecha, TRIM(mctad_rzn_anula) as concepto," +
+            var sql = "SELECT FIRST 10 trim(tmovi_des_tmovi) tmovi_des_tmovi," +
+                "dmcta_cod_ctadp,dmcta_fec_mctad as fecha, TRIM(mctad_rzn_anula) as concepto," +
                 "dmcta_val_dmcta as valor, mctad_cod_ofici as codigooficina," +
                 "mctad_cod_cajas as codigocajas,tmovi_cod_tasie,TRIM(tasie_des_tasie) tasie_des_tasie " +
                 "FROM cnxdmcta, cnxmctad, cnxtmovi, OUTER cnxtasie " +

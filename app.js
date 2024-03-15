@@ -11,11 +11,10 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
 const client = require('./view/client')
-const notification = require('./util/notification')
+//const notification = require('./util/notification')
 const account  = require('./view/account')
 const transaction = require('./view/transaction')
 app.use(client)
-app.use(notification)
 app.use(account)
 app.use(transaction)
 
