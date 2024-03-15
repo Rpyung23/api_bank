@@ -14,10 +14,12 @@ const client = require('./view/client')
 //const notification = require('./util/notification')
 const account  = require('./view/account')
 const transaction = require('./view/transaction')
+const bankcredit = require('./view/bankcredit')
+
 app.use(client)
 app.use(account)
 app.use(transaction)
-
+app.use(bankcredit)
 app.listen(process.env.PORT,function () {
     console.log(`SERVER API REST ${process.env.PORT}`)
 })
