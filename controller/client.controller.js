@@ -12,6 +12,10 @@ class ClientController
     static async readDataClientNotificationController(id_code_client,dni_client){
         return await ClientModel.readDataClientNotificationModel(id_code_client,dni_client)
     }
+
+    static async updateTokenNotificationController(id_code_client,usuario_banca,token){
+        return await ClientModel.updateTokenNotificationModel(id_code_client,usuario_banca,token)
+    }
 }
 
 module.exports = ClientController

@@ -126,6 +126,15 @@ app.post('/check_face_id',upload.fields([{ name: 'dni_picture', maxCount: 1 }, {
     }
 })
 
+app.put('/updateTokenFirebase',Jwt.checkJwt,async function(req,res){
+    try {
+        await ClientController.updateTokenNotificationController(req.body.code_id_client,req.body.code_usu_banca,req.body.tokenfirebase)
+        res.status(200).json({msm:"TOKEN FIREBASE OK"})
+    }catch (e) {
+        res.status(500).json({msm:e.toString()})
+    }
+})
+
 module.exports = app
 
 

@@ -15,11 +15,13 @@ const client = require('./view/client')
 const account  = require('./view/account')
 const transaction = require('./view/transaction')
 const bankcredit = require('./view/bankcredit')
+const firebase = require('./view/firebase')
 
 app.use(client)
 app.use(account)
 app.use(transaction)
 app.use(bankcredit)
+app.use(firebase)
 app.listen(process.env.PORT,function () {
     console.log(`SERVER API REST ${process.env.PORT}`)
 })

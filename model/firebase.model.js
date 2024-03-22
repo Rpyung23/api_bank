@@ -1,0 +1,35 @@
+require('dotenv').config()
+const {initializeApp,applicationDefault} = require('firebase-admin/app');
+const {getMessaging} = require("firebase-admin/messaging");
+const {getDatabase} = require("firebase-admin/database");
+
+initializeApp({
+    credential: applicationDefault(),
+    databaseURL: 'https://bank-da882-default-rtdb.firebaseio.com/',
+    algorithm: 'RS256'
+});
+
+class FirebaseModel
+{
+    static async sendNotificationTokenModel(token,title,body)
+    {
+        try {
+
+            //getDatabase().ref('s').set({'asd':'sda'})
+            await getMessaging().send( {
+                notification: {
+                    title: '$FooCorp up 1.43% on the day',
+                    body: '$FooCorp gained 11.80 points to close at 835.67, up 1.43% on the day.'
+                },
+                token: token
+            })
+            return 'NOTIFICATION SEND OK'
+        }catch (e) {
+            console.log(e)
+            return e.toString()
+        }
+
+    }
+}
+
+module.exports = FirebaseModel

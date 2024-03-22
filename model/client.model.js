@@ -20,7 +20,7 @@ class ClientModel
     {
         try {
             var conn = await connDB()
-            var sql = "SELECT UB.pk_usuario_banca,UB.contrasenia_banca,C.clien_cod_clien,C.clien_ide_clien," +
+            var sql = "SELECT UB.pk_usuario_banca,UB.contrasenia_banca,C.clien_cod_clien,TRIM(C.clien_ide_clien) clien_ide_clien," +
                 "TRIM(C.clien_nom_clien) clien_nom_clien,TRIM(C.clien_ape_clien) clien_ape_clien " +
                 "FROM cnx_usuario_banca AS UB INNER JOIN cnxclien AS C ON UB.fk_clien_cod_clien = C.clien_cod_clien " +
                 "WHERE UB.pk_usuario_banca = '"+usuario+"'"
@@ -44,6 +44,18 @@ class ClientModel
         }catch (e) {
             console.log(`ERROR AL NOTIFICAR : ${e.toString()}`)
             return null
+        }
+    }
+
+    static async updateTokenNotificationModel(id_code_client,usuario_banca,token)
+    {
+        try {
+            var conn = await connDB()
+            var sql = "UPDATE cnx_usuario_banca SET token_ult_notificacion = '"+token+"' WHERE pk_usuario_banca = '"+usuario_banca+"' AND fk_clien_cod_clien = "+id_code_client
+            await conn.query(sql)
+            await conn.close()
+        }catch (e) {
+            console.log(e)
         }
     }
 }
