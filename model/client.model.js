@@ -37,8 +37,8 @@ class ClientModel
         try {
             var conn = await connDB()
             var sql = "SELECT UB.pk_usuario_banca,UB.contrasenia_banca,C.clien_cod_clien,TRIM(C.clien_ide_clien) clien_ide_clien," +
-                "TRIM(C.clien_nom_clien) clien_nom_clien,TRIM(C.clien_ape_clien) clien_ape_clien " +
-                "FROM cnx_usuario_banca AS UB INNER JOIN cnxclien AS C ON UB.fk_clien_cod_clien = C.clien_cod_clien " +
+                "TRIM(C.clien_nom_clien) clien_nom_clien,TRIM(C.clien_ape_clien) clien_ape_clien," +
+                "UB.imei_ult_ingreso,UB.ip_ult_ingreso FROM cnx_usuario_banca AS UB INNER JOIN cnxclien AS C ON UB.fk_clien_cod_clien = C.clien_cod_clien " +
                 "WHERE UB.pk_usuario_banca = '"+usuario+"'"
             var result = await conn.query(sql)
             await conn.close()
@@ -64,6 +64,7 @@ class ClientModel
             return null
         }
     }
+
     static async updateTokenNotificationModel(id_code_client,usuario_banca,token)
     {
         try {
@@ -73,6 +74,22 @@ class ClientModel
             await conn.close()
         }catch (e) {
             console.log(e)
+        }
+    }
+
+    static async updateDataInfoLoginModel(id_code_client,usuario_banca,imei,ip)
+    {
+        try {
+            var conn = await connDB()
+            var sql = "UPDATE cnx_usuario_banca SET imei_ult_ingreso = '"+imei+"',ip_ult_ingreso = '"+ip+"' WHERE pk_usuario_banca = '"+usuario_banca+"' AND fk_clien_cod_clien = "+id_code_client
+            //var sql = "UPDATE cnx_usuario_banca SET imei_ult_ingreso = ${imei},ip_ult_ingreso=${ip} WHERE pk_usuario_banca = '"+usuario_banca+"' AND fk_clien_cod_clien = "+id_code_client
+            console.log(sql)
+            await conn.query(sql)
+            await conn.close()
+            return {estado:true}
+        }catch (e) {
+            console.log(e)
+            return {error:e.toString()}
         }
     }
 }

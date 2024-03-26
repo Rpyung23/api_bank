@@ -9,6 +9,7 @@ const Jwt = require('../util/jwt')
 const checkPassword = require("../util/checkPassword");
 const Notification = require('../util/notification')
 const {getFechaHoraActual} = require('../util/fechaFormat')
+const {htmlLogin} = require('../util/htmlContent')
 
 //Inicializamos la instancia de AWS Rekognition
 // b*D09-Bl
@@ -42,19 +43,29 @@ app.post('/login_client',async function(req,res)
     console.log("PING LOGIN CLIENT")
     //console.log(req.body)
     try{
+
         var data = await ClientController.loginClientController(req.body.usuario,req.body.password)
         var jwt = data.data.length > 0 ? Jwt.createJWT(data.data[0]) : null
 
-        if(jwt != null){
+        if(data.data[0].imei_ult_ingreso != null)
+        {
+            if(data.data[0].imei_ult_ingreso != req.body.imeiaccess)
+            {
+                return res.status(500).json({ msm : "NO PUEDE INICIAR SESIÓN EN LA APLICACIÓN PORQUE YA ESTÁ ABIERTA EN OTRO DISPOSITIVO. POR FAVOR, CIERRA LA SESIÓN EN EL OTRO DISPOSITIVO PARA PODER ACCEDER AQUÍ."})
+            }
+        }
+
+        if(jwt != null) {
             if(!await checkPassword(req.body.password,data.data[0].contrasenia_banca))
             {
                 res.status(401).json({
                     msm:"SU CONTRASEÑA NO ES CORRECTA."
                 })
+
             }else{
 
                 Notification.sentNotificationEmail(data.data[0].clien_ide_clien,data.data[0].clien_cod_clien,
-                    process.env.NAMECOOP,`SR(A) ${data.data[0].clien_nom_clien} ${data.data[0].clien_ape_clien} SE HA COMPLETADO EXITOSAMENTE EL ACCESO A SU CUENTA A TRAVÉS DE LA BANCA MÓVIL.\n${getFechaHoraActual()}.`)
+                    'INGRESO BANCA VIRTUAL MOVIL',htmlLogin(req.body.ipaccess,getFechaHoraActual()))
 
                 res.status(200).json({
                     token:jwt,
@@ -62,7 +73,7 @@ app.post('/login_client',async function(req,res)
                     last_name:data.data[0].clien_ape_clien,
                 })
             }
-        }else{
+        } else{
             res.status(401).json({
                 msm:'NO SE PUEDO CREAR TOKEN DE ACCESO'
             })
@@ -161,6 +172,24 @@ app.put('/updateProfile',Jwt.checkJwt,async function(req,res)
         res.status(500).json({msm:e.toString()})
     }
 })
+
+app.put('/updateDataAccessClient',Jwt.checkJwt,async function(req,res)
+{
+    var response = await ClientController.updateDataInfoLoginController(req.body.code_id_client,req.body.code_usu_banca,
+        req.body.imei,req.body.ip)
+    // FONDO DE INVERSION -- QUITO
+    try {
+        if(response.error == undefined)
+        {
+            res.status(200).json({msm:"DATOS OK"})
+        }else{
+            res.status(500).json({msm:response.error})
+        }
+    }catch (e) {
+        res.status(500).json({msm:e.toString()})
+    }
+})
+
 
 module.exports = app
 

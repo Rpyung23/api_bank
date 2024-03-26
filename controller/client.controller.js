@@ -21,6 +21,10 @@ class ClientController
     {
         return await ClientModel.updateProfileClientModel(id_client,firstname,lastname,phone,email)
     }
+
+    static async updateDataInfoLoginController(id_code_client,usuario_banca,imei,ip){
+        return await ClientModel.updateDataInfoLoginModel(id_code_client,usuario_banca,imei,ip)
+    }
 }
 
 module.exports = ClientController

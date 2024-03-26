@@ -1,5 +1,5 @@
+require('dotenv').config()
 const nodemailer = require('nodemailer')
-
 const ClientController = require('../controller/client.controller')
 const FirebaseController = require('../controller/firebase.controller')
 
@@ -22,7 +22,7 @@ class Notification
             var data = await  ClientController.readDataClientNotificationController(code_client,dni_client)
             //console.log(data)
             const info = await transporter.sendMail({
-                from: '"NOTIFICATION ACTIVIDAD APP MOVIL 🎊" <test@example.com>', // sender address
+                from: process.env.NAMECOOP+' <trailermovil66@gmail.com>', // sender address
                 to: [data.clien_dir_email], // list of receivers
                 subject: subject, // Subject line
                 html: content, // html body
