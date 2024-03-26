@@ -16,6 +16,11 @@ class ClientController
     static async updateTokenNotificationController(id_code_client,usuario_banca,token){
         return await ClientModel.updateTokenNotificationModel(id_code_client,usuario_banca,token)
     }
+
+    static async updateProfileClientController(id_client,firstname,lastname,phone,email)
+    {
+        return await ClientModel.updateProfileClientModel(id_client,firstname,lastname,phone,email)
+    }
 }
 
 module.exports = ClientController

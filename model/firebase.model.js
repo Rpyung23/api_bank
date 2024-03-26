@@ -18,8 +18,8 @@ class FirebaseModel
             //getDatabase().ref('s').set({'asd':'sda'})
             await getMessaging().send( {
                 notification: {
-                    title: '$FooCorp up 1.43% on the day',
-                    body: '$FooCorp gained 11.80 points to close at 835.67, up 1.43% on the day.'
+                    title: title,
+                    body: body
                 },
                 token: token
             })

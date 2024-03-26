@@ -1,4 +1,4 @@
-require('../config/env')
+require('dotenv').config()
 const bcrypt = require('bcryptjs');
 let checkPassword = async (pass_into,pass_sql) =>
 {

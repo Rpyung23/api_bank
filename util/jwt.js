@@ -1,4 +1,4 @@
-require('../config/env')
+require('dotenv').config()
 const jsonwebtoken = require('jsonwebtoken')
 
 class Jwt {

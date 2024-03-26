@@ -1,6 +1,7 @@
 const nodemailer = require('nodemailer')
 
 const ClientController = require('../controller/client.controller')
+const FirebaseController = require('../controller/firebase.controller')
 
 const transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
@@ -27,6 +28,18 @@ class Notification
                 html: content, // html body
             });
             console.log(`NOTIFICATION EMAIL OK : ${data.clien_dir_email}`)
+        }catch (e) {
+            console.log(`ERROR SEND EMAIL : ${e.toString()}`)
+        }
+
+    }
+
+    static  async sentNotificationPush(dni_client,code_client,title,body)
+    {
+        try{
+            var data = await  ClientController.readDataClientNotificationController(code_client,dni_client)
+            await FirebaseController.sendNotificationTokenController(data.token_ult_notificacion,title,body)
+            console.log(`NOTIFICATION PUSH OK : ${data.clien_dir_email}`)
         }catch (e) {
             console.log(`ERROR SEND EMAIL : ${e.toString()}`)
         }

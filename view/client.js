@@ -1,3 +1,4 @@
+require('dotenv').config()
 const AWS = require('aws-sdk')
 const multer = require('multer');
 const upload = multer();
@@ -6,8 +7,8 @@ const app = express()
 const ClientController = require('../controller/client.controller')
 const Jwt = require('../util/jwt')
 const checkPassword = require("../util/checkPassword");
-
 const Notification = require('../util/notification')
+const {getFechaHoraActual} = require('../util/fechaFormat')
 
 //Inicializamos la instancia de AWS Rekognition
 // b*D09-Bl
@@ -23,9 +24,17 @@ AWS.config.update({
 
 app.get('/profile_client',Jwt.checkJwt,async function(req,res)
 {
-    console.log(req.body)
-    var data = await ClientController.readProfileClientController(9187)
-    res.status(200).json(data)
+    try {
+        var data = await ClientController.readProfileClientController(req.body.code_id_client)
+
+        if(data == null){
+            res.status(500).json({msm:"PERFIL NO ENCONTRADO"})
+        }else{
+            res.status(200).json(data)
+        }
+    }catch (e) {
+        res.status(500).json({msm:e.toString()})
+    }
 })
 
 app.post('/login_client',async function(req,res)
@@ -44,7 +53,8 @@ app.post('/login_client',async function(req,res)
                 })
             }else{
 
-                Notification.sentNotificationEmail(data.data[0].clien_ide_clien,data.data[0].clien_cod_clien,'INGRESO APP MOVIL','CONTENT PRUEBA INGRESO')
+                Notification.sentNotificationEmail(data.data[0].clien_ide_clien,data.data[0].clien_cod_clien,
+                    process.env.NAMECOOP,`SR(A) ${data.data[0].clien_nom_clien} ${data.data[0].clien_ape_clien} SE HA COMPLETADO EXITOSAMENTE EL ACCESO A SU CUENTA A TRAVÉS DE LA BANCA MÓVIL.\n${getFechaHoraActual()}.`)
 
                 res.status(200).json({
                     token:jwt,
@@ -130,6 +140,23 @@ app.put('/updateTokenFirebase',Jwt.checkJwt,async function(req,res){
     try {
         await ClientController.updateTokenNotificationController(req.body.code_id_client,req.body.code_usu_banca,req.body.tokenfirebase)
         res.status(200).json({msm:"TOKEN FIREBASE OK"})
+    }catch (e) {
+        res.status(500).json({msm:e.toString()})
+    }
+})
+
+app.put('/updateProfile',Jwt.checkJwt,async function(req,res)
+{
+
+    try {
+        var data = await ClientController.updateProfileClientController(req.body.code_id_client,req.body.firstname,
+            req.body.lastname,req.body.phone,req.body.email)
+        if(data.error == undefined){
+            Notification.sentNotificationPush(req.body.code_dni_client,req.body.code_id_client,process.env.NAMECOOP,`SR(A) ${req.body.firstname} ${req.body.lastname} SUS DATOS PERSONALES HAN SIDO ACTUALIZADOS CON ÉXITO\n${getFechaHoraActual()}.`)
+            res.status(200).json({msm:'DATOS ACTUALIZADOS CON ÉXITO'})
+        }else{
+            res.status(500).json({msm: data.error})
+        }
     }catch (e) {
         res.status(500).json({msm:e.toString()})
     }
