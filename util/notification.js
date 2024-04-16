@@ -41,6 +41,7 @@ class Notification
             await FirebaseController.sendNotificationTokenController(data.token_ult_notificacion,title,body)
             console.log(`NOTIFICATION PUSH OK : ${data.clien_dir_email}`)
         }catch (e) {
+            console.log(e)
             console.log(`ERROR SEND EMAIL : ${e.toString()}`)
         }
 

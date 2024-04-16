@@ -2,7 +2,8 @@ const odbc = require('odbc');
 const datosConn = {
         host: '172.31.1.240',
         user: 'informix',
-        db: 'econx',
+        //db: 'econx',
+        db:'finantix',
         pass: 'Inf0115o',
         port: 1525,
         protocolo: 'onsoctcp',
