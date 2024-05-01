@@ -42,8 +42,10 @@ class ClientModel
                 "WHERE UB.pk_usuario_banca = '"+usuario+"'"
             var result = await conn.query(sql)
             await conn.close()
+            //console.log(result)
             return {data:result}
         }catch (e) {
+            console.log(e.toString())
             return {error:e.toString()}
         }
     }
