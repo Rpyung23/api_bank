@@ -11,7 +11,7 @@ const datosConn = {
     }
 const connDB =  async (code_company) => {
     try {
-        var cn = `DSN=CORE_BANK_64;UID=${datosConn.user};PWD=${datosConn.pass};DATABASE=${datosConn.db}`
+        var cn = `DSN=CORE_BANK;UID=${datosConn.user};PWD=${datosConn.pass};DATABASE=${datosConn.db}`
         console.log(cn)
         return await odbc.connect(cn);
         console.log("CONN DB INFORMIX - ODBC OK")

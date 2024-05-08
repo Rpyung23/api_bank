@@ -5,7 +5,10 @@ class Jwt {
     static createJWT(data)
     {
         try {
-            var token = jsonwebtoken.sign({code_usu_banca:data.pk_usuario_banca,code_id_client:data.clien_cod_clien,code_dni_client:data.clien_ide_clien},process.env.CLAVE_TOKEN,{expiresIn:'31 days',algorithm:'HS256'})
+            var token = jsonwebtoken.sign({code_usu_banca:data.pk_usuario_banca,code_id_client:data.clien_cod_clien,
+                code_dni_client:data.clien_ide_clien,
+                clien_cod_empre:data.clien_cod_empre,
+                clien_cod_ofici:data.clien_cod_ofici},process.env.CLAVE_TOKEN,{expiresIn:'31 days',algorithm:'HS256'})
             return token
         }catch (e) {
             return e.toString()
@@ -21,6 +24,10 @@ class Jwt {
             req.body.code_usu_banca = decoded.code_usu_banca.trim()
             req.body.code_id_client = decoded.code_id_client
             req.body.code_dni_client = decoded.code_dni_client.trim()
+            req.body.clien_cod_empre = decoded.clien_cod_empre
+            req.body.clien_cod_ofici = decoded.clien_cod_ofici
+            /*req.body.last_name = decoded.last_name
+            req.body.first_name = decoded.first_name*/
             return next();
         }catch (e) {
             res.status(401).json({msm:e.toString()})

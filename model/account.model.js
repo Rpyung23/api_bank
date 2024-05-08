@@ -6,7 +6,7 @@ class AccountModel
         try {
             var conn = await connDB()
             var sql = "SELECT CB.ctadp_cod_ctadp,CB.ctadp_cod_clien,TRIM(CB.ctadp_nom_impri) ctadp_nom_impri," +
-                "CB.ctadp_sal_dispo FROM cnxctadp AS CB WHERE CB.ctadp_cod_clien = "+id_client
+                "CB.ctadp_sal_dispo FROM cnxctadp AS CB WHERE CB.ctadp_cod_clien = "+id_client+" and CB.ctadp_cod_ectad = 1"
             var result = await conn.query(sql)
 
            for(var i = 0;i<result.length;i++){

@@ -17,13 +17,17 @@ class ClientController
         return await ClientModel.updateTokenNotificationModel(id_code_client,usuario_banca,token)
     }
 
-    static async updateProfileClientController(id_client,firstname,lastname,phone,email)
+    static async updateProfileClientController(id_client,welcome,phone,email)
     {
-        return await ClientModel.updateProfileClientModel(id_client,firstname,lastname,phone,email)
+        return await ClientModel.updateProfileClientModel(id_client,welcome,phone,email)
     }
 
     static async updateDataInfoLoginController(id_code_client,usuario_banca,imei,ip){
         return await ClientModel.updateDataInfoLoginModel(id_code_client,usuario_banca,imei,ip)
+    }
+
+    static async readCajaClientController(id_code_client,cod_oficina){
+        return await ClientModel.readCajaClientModel(id_code_client,cod_oficina)
     }
 }
 

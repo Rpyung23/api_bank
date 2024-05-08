@@ -40,14 +40,20 @@ app.get('/profile_client',Jwt.checkJwt,async function(req,res)
 
 app.post('/login_client',async function(req,res)
 {
-    console.log("PING LOGIN CLIENT")
+    //console.log("PING LOGIN CLIENT")
     //console.log(req.body)
     try{
 
         var data = await ClientController.loginClientController(req.body.usuario,req.body.password)
+        if(data.data[0] == undefined){
+            return res.status(500).json({
+                msm:'SUS CREDENCIALES INCORRECTAS.'
+            })
+        }
+        //console.log(data.data[0])
         var jwt = data.data.length > 0 ? Jwt.createJWT(data.data[0]) : null
 
-        if(data.data[0].imei_ult_ingreso != null)
+        if(data.data[0].imei_ult_ingreso != null && data.data[0].imei_ult_ingreso != undefined)
         {
             if(data.data[0].imei_ult_ingreso != req.body.imeiaccess)
             {
@@ -63,7 +69,7 @@ app.post('/login_client',async function(req,res)
                 })
 
             }else{
-
+                //console.log(req.body.ipaccess)
                 Notification.sentNotificationEmail(data.data[0].clien_ide_clien,data.data[0].clien_cod_clien,
                     'INGRESO BANCA VIRTUAL MOVIL',htmlLogin(req.body.ipaccess,getFechaHoraActual()))
 
@@ -71,6 +77,7 @@ app.post('/login_client',async function(req,res)
                     token:jwt,
                     first_name:data.data[0].clien_nom_clien,
                     last_name:data.data[0].clien_ape_clien,
+                    welcome_msm: data.data[0].welcome_msm,
                 })
             }
         } else{
@@ -158,12 +165,12 @@ app.put('/updateTokenFirebase',Jwt.checkJwt,async function(req,res){
 
 app.put('/updateProfile',Jwt.checkJwt,async function(req,res)
 {
-
+    //console.log(req.body)
     try {
-        var data = await ClientController.updateProfileClientController(req.body.code_id_client,req.body.firstname,
-            req.body.lastname,req.body.phone,req.body.email)
+        var data = await ClientController.updateProfileClientController(req.body.code_id_client,
+            req.body.welcome,req.body.phone,req.body.email)
         if(data.error == undefined){
-            Notification.sentNotificationPush(req.body.code_dni_client,req.body.code_id_client,process.env.NAMECOOP,`SR(A) ${req.body.firstname} ${req.body.lastname} SUS DATOS PERSONALES HAN SIDO ACTUALIZADOS CON ÉXITO\n${getFechaHoraActual()}.`)
+            Notification.sentNotificationPush(req.body.code_dni_client,req.body.code_id_client,process.env.NAMECOOP,`ESTIMADO SOCIO(A) SUS DATOS PERSONALES HAN SIDO ACTUALIZADOS CON ÉXITO\n${getFechaHoraActual()}.`)
             res.status(200).json({msm:'DATOS ACTUALIZADOS CON ÉXITO'})
         }else{
             res.status(500).json({msm: data.error})
@@ -190,6 +197,21 @@ app.put('/updateDataAccessClient',Jwt.checkJwt,async function(req,res)
     }
 })
 
+
+app.get('/cajas_oficina',Jwt.checkJwt,async function(req,res)
+{
+    try {
+        var response = await ClientController.readCajaClientController(req.body.code_id_client,
+            req.body.clien_cod_ofici);
+        if(response.error != undefined){
+            res.status(500).json({msm:response.error})
+        }else{
+            res.status(200).json(response.data)
+        }
+    }catch (e) {
+        res.status(500).json({msm:e.toString()})
+    }
+})
 
 module.exports = app
 
