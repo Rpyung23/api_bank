@@ -35,16 +35,7 @@ class ContactModel {
     static async createContactModel(usuario_banca, cuenta, isahorro, code_banco,
                                     name, dni, pasaport, ruc, isexterno)
     {
-        try {
-            var conn = await connDB()
-            var sql = "INSERT INTO cnxcontact (fk_usuario_banca, num_ctadp_cod_ctadp, isahorro, fk_ifina_cod_ifina," +
-                "namecontact, dnicontact, pasaportcontact, ruccontact, isexterno) " +
-                "VALUES ('rui150012','256889',1,8,'Juan Carlos Mayorga Caceres',NULL,NULL,'0604666982001',1);"
-            await conn.query()
-            await conn.close()
-        }catch (e) {
-            console.log(e.toString())
-        }
+
     }
 }
 
