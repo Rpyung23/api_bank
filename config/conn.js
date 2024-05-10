@@ -16,7 +16,8 @@ const connDB =  async (code_company) => {
         return await odbc.connect(cn);
         console.log("CONN DB INFORMIX - ODBC OK")
     }catch (e) {
-        console.log(e)
+        console.log("CATCH CONNDB..")
+        console.log(e.toString())
         return null
     }
 };

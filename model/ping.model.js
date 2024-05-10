@@ -6,6 +6,7 @@ class PingModel {
             await conn.close()
             return {data:'OK'}
         }catch (e) {
+            console.log("CATCH PING MODEL")
             return {data:e.toString()}
         }
     }
