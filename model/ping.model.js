@@ -8,7 +8,7 @@ class PingModel {
             return {data:'OK'}
         }catch (e) {
             console.log("CATCH PING MODEL")
-            return {data:e.toString()}
+            return {data:e}
         }
     }
 }
