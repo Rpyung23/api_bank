@@ -11,7 +11,7 @@ const odbc = require('odbc');
     }*/
 const connDB =  async (code_company) => {
     try {
-        var cn = `DSN=canales`
+        var cn = `DSN=CORE_BANK`
         console.log(cn)
         return await odbc.connect(cn);
         console.log("CONN DB INFORMIX - ODBC OK")
