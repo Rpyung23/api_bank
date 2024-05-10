@@ -13,8 +13,11 @@ const connDB =  async (code_company) => {
     try {
         var cn = `DSN=CORE_BANK`
         console.log(cn)
-        return await odbc.connect(cn);
-        console.log("CONN DB INFORMIX - ODBC OK")
+        return await odbc.connect({
+            connectionString: cn,
+            connectionTimeout: 50,
+            loginTimeout: 10,
+        });
     }catch (e) {
         console.log("CATCH CONNDB..")
         console.log(e.toString())
