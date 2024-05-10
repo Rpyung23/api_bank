@@ -3,7 +3,7 @@ class PingModel {
     static async pingModel(){
         try {
             var conn = await connDB()
-            await conn.query("select FIRST 10 * from cnxifina;")
+            await conn.query("select * from cnxsexos;")
             await conn.close()
             return {data:'OK'}
         }catch (e) {
