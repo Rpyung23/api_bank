@@ -1,14 +1,19 @@
 const connDB = require('../config/conn')
 class ContactModel {
-    static async checkContacModel(account)
+    static async readNewDataContacLocalModel(account)
     {
         try {
             var conn = await connDB()
-            var sql = "SELECT CB.ctadp_cod_ctadp,concat(TRIM(CC.clien_nom_clien),concat(' ',CC.clien_ape_clien)) name " +
-                "FROM cnxctadp AS CB INNER JOIN cnxclien AS CC ON CB.ctadp_cod_clien = CC.clien_cod_clien WHERE CB.ctadp_cod_ctadp = '"+account+"'"
+            // TRIM(CB.ctadp_nom_impri) ctadp_nom_impri,trim(concat(concat(trim(CL.clien_nom_clien),' '),trim(CL.clien_ape_clien))) name_complete
+            var sql = "SELECT CX.id_cnxcontact,UB.pk_usuario_banca,TRIM(CB.ctadp_cod_ctadp) ctadp_cod_ctadp," +
+                "TRIM(CB.ctadp_nom_impri) ctadp_nom_impri " +
+                "FROM cnxctadp AS CB LEFT JOIN cnxcontact AS CX ON CB.ctadp_cod_ctadp = CX.num_ctadp_cod_ctadp " +
+                "LEFT JOIN cnx_usuario_banca AS UB ON UB.pk_usuario_banca = CX.fk_usuario_banca " +
+                "LEFT JOIN cnxclien AS CL ON CB.ctadp_cod_clien = CL.clien_cod_clien " +
+                "WHERE CB.ctadp_cod_ctadp = '"+account+"' AND CB.ctadp_cod_ectad = 1"
             var response = await conn.query(sql)
             await conn.close()
-            return {data:response[0]}
+            return {data:response}
         }catch (e) {
             return {error:e.toString()}
         }
@@ -32,11 +37,38 @@ class ContactModel {
         }
     }
 
-    static async createContactModel(usuario_banca, cuenta, isahorro, code_banco,
-                                    name, dni, pasaport, ruc, isexterno)
+    static async createContactLocalModel(usuario_banca,account,name_complete)
     {
-
+        try {
+            var conn = await connDB()
+            var sql = `INSERT INTO cnxcontact (fk_usuario_banca, num_ctadp_cod_ctadp, isahorro, 
+                          fk_ifina_cod_ifina, namecontact, dnicontact, pasaportcontact, ruccontact, isexterno) 
+                          VALUES ('${usuario_banca}', '${account}', 1, null,'${name_complete}', null, null, null, 0)`
+            //console.log(sql)
+            await conn.query(sql)
+            await conn.close()
+            return {data:'ok'}
+        }catch (e) {
+            //console.log(e)
+            return {error:e.toString()}
+        }
     }
+
+    static async checkExistContactModel(usuario_banca,account){
+        try {
+            var conn = await connDB()
+            var sql = "SELECT COUNT(*) totContact FROM cnxcontact AS CX " +
+                "WHERE CX.num_ctadp_cod_ctadp = '"+account+"' AND CX.fk_usuario_banca = '"+usuario_banca+"'"
+            var result = await conn.query(sql)
+            //console.log("QUERY")
+            await conn.close()
+            return {data:result[0].totcontact}
+        }catch (e) {
+            console.log(e)
+            return {error:e.toString()}
+        }
+    }
+
 }
 
 module.exports = ContactModel
