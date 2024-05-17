@@ -25,10 +25,11 @@ class ContactModel {
             var conn = await connDB()
             var sql = "SELECT TRIM(C.num_ctadp_cod_ctadp) num_ctadp_cod_ctadp,TRIM(C.namecontact) namecontact," +
                 "TRIM(C.dnicontact) dnicontact,TRIM(C.pasaportcontact) pasaportcontact," +
-                "TRIM(C.ruccontact) ruccontact,C.isahorro,C.isexterno,CX.ifina_cod_ifina,TRIM(CX.ifina_nom_ifina) ifina_nom_ifina " +
-                "FROM cnxcontact AS C left JOIN cnxifina AS CX ON C.fk_ifina_cod_ifina = CX.ifina_cod_ifina " +
-                "WHERE fk_usuario_banca = '"+usuario+"'"
-            console.log(sql)
+                "TRIM(C.ruccontact) ruccontact,C.typeaccount,C.isexterno,CX.ifina_cod_ifina,TRIM(CX.ifina_nom_ifina) ifina_nom_ifina," +
+                "TRIM(TC.ticue_des_ticue) ticue_des_ticue FROM cnxcontact AS C left JOIN cnxifina AS CX ON " +
+                "C.fk_ifina_cod_ifina = CX.ifina_cod_ifina LEFT JOIN cnxticue " +
+                "AS TC ON TC.ticue_cod_ticue = C.typeaccount  WHERE fk_usuario_banca = '"+usuario+"'"
+            //console.log(sql)
             var result = await conn.query(sql)
             await conn.close()
             return {data:result}
@@ -41,7 +42,7 @@ class ContactModel {
     {
         try {
             var conn = await connDB()
-            var sql = `INSERT INTO cnxcontact (fk_usuario_banca, num_ctadp_cod_ctadp, isahorro, 
+            var sql = `INSERT INTO cnxcontact (fk_usuario_banca, num_ctadp_cod_ctadp, typeaccount, 
                           fk_ifina_cod_ifina, namecontact, dnicontact, pasaportcontact, ruccontact, isexterno) 
                           VALUES ('${usuario_banca}', '${account}', 1, null,'${name_complete}', null, null, null, 0)`
             //console.log(sql)

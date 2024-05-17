@@ -61,8 +61,33 @@ class TransactionModel {
             await conn.close()
             return {data:response}
         }catch (e) {
-           // console.log(e)
+           //console.log(e)
             return {error:e.toString()}
+        }
+    }
+
+    static async createTransactionClientExternalModel(cod_empresa,cod_oficina,cod_caja,cli_empresa,cli_ofici,cod_clien,
+                                                      dni_client,
+                                                      nombre_clien,account_origin,valtrans,id_clien_dest,name_clien_dest,
+                                                      codofi,account_des,type_account,detail)
+    {
+        try {
+            if(detail == null || detail == undefined){
+                detail = ""
+            }
+
+            nombre_clien.replace(/�/g, '');
+
+            var conn = await connDB()
+            var sql = `CALL cnxprc_reg_spi01(${cod_empresa},${cod_oficina},${cod_caja},${cli_empresa},${cli_ofici},${cod_clien},'${dni_client}','${nombre_clien}','${account_origin}',
+                                    ${valtrans},'${id_clien_dest}','${name_clien_dest}',${codofi},'${account_des}',${type_account},'${detail}',1);`
+            ///console.log(sql)
+            var response = await conn.query(sql)
+            await conn.close()
+            return {data:response}
+        }catch (e) {
+            //console.log(e)
+            return  {error:e.toString()}
         }
     }
 }

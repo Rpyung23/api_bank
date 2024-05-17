@@ -14,6 +14,16 @@ class TransactionController
     static async readTransactionLocalClientController(num_account,code_transaction){
         return await TransactionModel.readTransactionLocalClientModel(num_account,code_transaction)
     }
+
+    static async createTransactionClientExternalController(cod_empresa,cod_oficina,cod_caja,cli_empresa,cli_ofici,cod_clien,
+                                                      dni_client,
+                                                      nombre_clien,account_origin,valtrans,id_clien_dest,name_clien_dest,
+                                                      codofi,account_des,type_account,detail)
+    {
+        return await TransactionModel.createTransactionClientExternalModel(cod_empresa,cod_oficina,cod_caja,cli_empresa,
+            cli_ofici,cod_clien, dni_client, nombre_clien,account_origin,valtrans,id_clien_dest,name_clien_dest,
+            codofi,account_des,type_account,detail)
+    }
 }
 
 module.exports = TransactionController

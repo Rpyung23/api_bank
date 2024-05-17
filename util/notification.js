@@ -34,6 +34,24 @@ class Notification
 
     }
 
+    static  async sentNotificationEmail(dni_client,code_client,subject,content)
+    {
+        try{
+            var data = await  ClientController.readDataClientNotificationController(code_client,dni_client)
+            //console.log(data)
+            const info = await transporter.sendMail({
+                from: process.env.NAMECOOP+' <trailermovil66@gmail.com>', // sender address
+                to: [data.clien_dir_email], // list of receivers
+                subject: subject, // Subject line
+                html: content, // html body
+            });
+            console.log(`NOTIFICATION EMAIL OK : ${data.clien_dir_email}`)
+        }catch (e) {
+            console.log(`ERROR SEND EMAIL : ${e.toString()}`)
+        }
+
+    }
+
     static  async sentNotificationPush(dni_client,code_client,title,body)
     {
         try{

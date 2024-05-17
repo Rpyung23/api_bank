@@ -35,7 +35,7 @@ class ClientModel
             return {error:e.toString()}
         }
     }
-    static async loginClientModel(usuario,password)
+    static async loginClientModel(usuario)
     {
         try {
             var conn = await connDB()

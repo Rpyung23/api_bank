@@ -61,8 +61,11 @@ app.post('/login_client',async function(req,res)
             }
         }
 
-        if(jwt != null) {
-            if(!await checkPassword(req.body.password,data.data[0].contrasenia_banca))
+        if(jwt != null)
+        {
+            var isvalidatePass = req.body.isLocalAuth  ? true : await checkPassword(req.body.password,data.data[0].contrasenia_banca)
+
+            if(!isvalidatePass)
             {
                 res.status(401).json({
                     msm:"SU CONTRASEÑA NO ES CORRECTA."
@@ -70,11 +73,16 @@ app.post('/login_client',async function(req,res)
 
             }else{
                 //console.log(req.body.ipaccess)
-                Notification.sentNotificationEmail(data.data[0].clien_ide_clien,data.data[0].clien_cod_clien,
-                    'INGRESO BANCA VIRTUAL MOVIL',htmlLogin(req.body.ipaccess,getFechaHoraActual()))
+                try {
+                    Notification.sentNotificationEmail(data.data[0].clien_ide_clien,data.data[0].clien_cod_clien,
+                        'INGRESO BANCA VIRTUAL MOVIL',htmlLogin(req.body.ipaccess,getFechaHoraActual()))
+                }catch (e) {
+                    console.log(`ERROR NOTIFICATION LOGIN ${e.toString()}`)
+                }
 
                 res.status(200).json({
                     token:jwt,
+                    username:data.data[0].pk_usuario_banca,
                     first_name:data.data[0].clien_nom_clien,
                     last_name:data.data[0].clien_ape_clien,
                     welcome_msm: data.data[0].welcome_msm,
@@ -170,7 +178,12 @@ app.put('/updateProfile',Jwt.checkJwt,async function(req,res)
         var data = await ClientController.updateProfileClientController(req.body.code_id_client,
             req.body.welcome,req.body.phone,req.body.email)
         if(data.error == undefined){
-            Notification.sentNotificationPush(req.body.code_dni_client,req.body.code_id_client,process.env.NAMECOOP,`ESTIMADO SOCIO(A) SUS DATOS PERSONALES HAN SIDO ACTUALIZADOS CON ÉXITO\n${getFechaHoraActual()}.`)
+            try {
+                Notification.sentNotificationPush(req.body.code_dni_client,req.body.code_id_client,process.env.NAMECOOP,
+                    `ESTIMADO SOCIO(A) SUS DATOS PERSONALES HAN SIDO ACTUALIZADOS CON ÉXITO\n${getFechaHoraActual()}.`)
+            }catch (e) {
+                console.log(`ERROR SEND NOTIFICATION UPDATE PROFILE ${e.toString()}`)
+            }
             res.status(200).json({msm:'DATOS ACTUALIZADOS CON ÉXITO'})
         }else{
             res.status(500).json({msm: data.error})

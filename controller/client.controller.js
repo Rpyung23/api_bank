@@ -5,8 +5,8 @@ class ClientController
         return await ClientModel.readProfileClientModel(id_client)
     }
 
-    static async loginClientController(usuario,password){
-        return await ClientModel.loginClientModel(usuario,password)
+    static async loginClientController(usuario){
+        return await ClientModel.loginClientModel(usuario)
     }
 
     static async readDataClientNotificationController(id_code_client,dni_client){

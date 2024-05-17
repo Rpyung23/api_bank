@@ -18,6 +18,19 @@ class AccountModel
             return {error:e.toString()}
         }
     }
+
+    static async readtypeAccountModel(){
+        try {
+            var conn = await connDB()
+            var sql = "SELECT ticue_cod_ticue, TRIM(ticue_des_ticue) ticue_des_ticue FROM cnxticue;"
+            var response = await conn.query(sql)
+            await conn.close()
+            return {data:response}
+        }catch (e) {
+            console.log(e)
+            return {error:e.toString()}
+        }
+    }
 }
 
 module.exports = AccountModel

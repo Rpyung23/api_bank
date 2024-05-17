@@ -18,5 +18,18 @@ app.get('/read_accounts',Jwt.checkJwt,async function(req,res)
     }
 })
 
+app.get('/type_account',Jwt.checkJwt,async function(req,res){
+    try {
+        var data = await AccountController.readtypeAccountModel()
+        //console.log(data.data)
+        if(data.error != undefined){
+            res.status(500).json({msm:data.error})
+        }else{
+            res.status(200).json(data.data)
+        }
+    }catch (e) {
+        res.status(500).json({msm:e.toString()})
+    }
+})
 
 module.exports = app

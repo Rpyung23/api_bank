@@ -5,6 +5,10 @@ class AccountController
     {
         return await AccountModel.readAccountClientModel(id_client)
     }
+
+    static async readtypeAccountModel(){
+        return await AccountModel.readtypeAccountModel()
+    }
 }
 
 module.exports = AccountController
