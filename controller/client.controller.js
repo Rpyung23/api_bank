@@ -9,6 +9,10 @@ class ClientController
         return await ClientModel.loginClientModel(usuario)
     }
 
+    static async logOutClientModel(usuario){
+        return await ClientModel.logOutClientModel(usuario)
+    }
+
     static async readDataClientNotificationController(id_code_client,dni_client){
         return await ClientModel.readDataClientNotificationModel(id_code_client,dni_client)
     }

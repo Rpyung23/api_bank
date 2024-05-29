@@ -46,8 +46,8 @@ app.post('/login_client',async function(req,res)
 
         var data = await ClientController.loginClientController(req.body.usuario,req.body.password)
         if(data.data[0] == undefined){
-            return res.status(500).json({
-                msm:'SUS CREDENCIALES INCORRECTAS.'
+            return res.status(204).json({
+                msm:'SUS CREDENCIALES SON INCORRECTAS.'
             })
         }
         //console.log(data.data[0])
@@ -94,6 +94,23 @@ app.post('/login_client',async function(req,res)
             })
         }
 
+    }catch (e) {
+        res.status(500).json({msm:e.toString()})
+    }
+})
+
+app.delete('/logout_client',async function(req,res)
+{
+    //console.log("PING LOGIN CLIENT")
+    //console.log(req.body)
+    try{
+
+        var data = await ClientController.logOutClientModel(req.body.usuario)
+        if(data.error != undefined){
+            res.status(500).json({msm:data.error})
+        }else{
+            res.status(200).json({msm:"ok"})
+        }
     }catch (e) {
         res.status(500).json({msm:e.toString()})
     }

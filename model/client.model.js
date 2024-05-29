@@ -42,7 +42,7 @@ class ClientModel
             var sql = "SELECT UB.pk_usuario_banca,UB.contrasenia_banca,C.clien_cod_clien,TRIM(C.clien_ide_clien) clien_ide_clien," +
                 "TRIM(C.clien_nom_clien) clien_nom_clien,TRIM(C.clien_ape_clien) clien_ape_clien," +
                 "UB.imei_ult_ingreso,UB.ip_ult_ingreso,C.clien_cod_empre,C.clien_cod_ofici,trim(UB.welcome_msm) welcome_msm FROM cnx_usuario_banca AS UB INNER JOIN cnxclien AS C ON UB.fk_clien_cod_clien = C.clien_cod_clien " +
-                "WHERE UB.pk_usuario_banca = '"+usuario+"'"
+                "WHERE UB.pk_usuario_banca = '"+usuario+"' and estado = 1"
             //console.log(sql)
             var result = await conn.query(sql)
             await conn.close()
@@ -53,6 +53,21 @@ class ClientModel
             return {error:e.toString()}
         }
     }
+
+    static async logOutClientModel(usuario){
+        try {
+            var conn = await connDB()
+            var sql = "UPDATE cnx_usuario_banca SET fecha_ult_ingreso = NULL,token_ult_session = NULL," +
+                "token_ult_notificacion = NULL,imei_ult_ingreso = NULL,ip_ult_ingreso = NULL " +
+                "WHERE pk_usuario_banca = '"+usuario+"'"
+            await conn.query(sql)
+            await conn.close()
+            return {response:true}
+        }catch (e) {
+            return {error:e.toString()}
+        }
+    }
+
     static async readDataClientNotificationModel(id_code_client,dni_client){
         try {
             var conn = await connDB()
