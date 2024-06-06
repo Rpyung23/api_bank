@@ -53,6 +53,7 @@ app.get('/checkAccountExist/:account',Jwt.checkJwt,async function(req,res)
     }
 })
 
+
 app.post('/createContactLocal',Jwt.checkJwt,async function(req,res){
     try {
         var response = await ContactController.createContactLocalController(req.body.code_usu_banca,
@@ -67,4 +68,17 @@ app.post('/createContactLocal',Jwt.checkJwt,async function(req,res){
     }
 })
 
+app.post('/createContactExternal',Jwt.checkJwt,async function(req,res){
+    try {
+        var response = await ContactController.createContactLocalController(req.body.code_usu_banca,
+            req.body.account,req.body.name)
+        if (response.error != undefined){
+            res.status(500).json({msm:response.error})
+        }else {
+            res.status(200).json({msm:'Contacto creado con exito'})
+        }
+    }catch (e) {
+        res.status(500).json({msm:e.toString()})
+    }
+})
 module.exports = app
