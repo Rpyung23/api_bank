@@ -11,7 +11,8 @@ const odbc = require('odbc');
     }*/
 const connDB =  async (code_company) => {
     try {
-        var cn = `DSN=CORE_BANK`
+        //var cn = `DSN=CORE_BANK`
+        var cn = `DSN=canales`
         console.log(cn)
         return await odbc.connect({
             connectionString: cn,
