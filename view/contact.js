@@ -2,6 +2,7 @@ const express = require('express')
 const app = express()
 const Jwt = require('../util/jwt')
 const ContactController = require('../controller/contact.controller')
+
 app.get('/contacts',Jwt.checkJwt,async function (req, res)
 {
     try {
@@ -57,7 +58,7 @@ app.get('/checkAccountExist/:account',Jwt.checkJwt,async function(req,res)
 app.post('/createContactLocal',Jwt.checkJwt,async function(req,res){
     try {
         var response = await ContactController.createContactLocalController(req.body.code_usu_banca,
-            req.body.account,req.body.name)
+            req.body.account,req.body.name,req.body.codeContact)
         if (response.error != undefined){
             res.status(500).json({msm:response.error})
         }else {
@@ -70,15 +71,19 @@ app.post('/createContactLocal',Jwt.checkJwt,async function(req,res){
 
 app.post('/createContactExternal',Jwt.checkJwt,async function(req,res){
     try {
-        var response = await ContactController.createContactLocalController(req.body.code_usu_banca,
-            req.body.account,req.body.name)
+        var response = await ContactController.createContactExternalController(req.body.code_usu_banca,
+            req.body.account,req.body.typeaccount,
+            req.body.ifina_cod_ifina, req.body.name,
+            req.body.codecontact,req.body.typecodecontact,
+            req.body.email)
         if (response.error != undefined){
             res.status(500).json({msm:response.error})
         }else {
-            res.status(200).json({msm:'Contacto creado con exito'})
+            res.status( response.data ? 200 : 300).json({msm:response.data ? 'Contacto creado con exito' : 'El contacto ya se encuentra registrado'})
         }
     }catch (e) {
         res.status(500).json({msm:e.toString()})
     }
 })
+
 module.exports = app
