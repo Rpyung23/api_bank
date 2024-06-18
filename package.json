@@ -23,6 +23,7 @@
     "nodemailer": "^6.9.11",
     "nodemon": "^3.1.0",
     "odbc": "^2.4.8",
-    "path": "^0.12.7"
+    "path": "^0.12.7",
+    "window-location-origin": "^0.1.0"
   }
 }

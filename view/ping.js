@@ -5,7 +5,7 @@ app.get('/ping',async function(req,res)
 {
     try {
         var response = await PingModel.pingModel()
-        res.status(200).json({'ping':response.data})
+        res.status(200).json({'ping':response.data,'hostname':window.location.origin})
     }catch (e) {
         res.status(200).json({'ping':e.toString()})
     }

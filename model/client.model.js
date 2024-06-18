@@ -18,6 +18,7 @@ class ClientModel
             return null
         }
     }
+
     static async updateProfileClientModel(id_client,welcome,phone,email)
     {
         try {

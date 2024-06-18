@@ -40,8 +40,6 @@ app.get('/profile_client',Jwt.checkJwt,async function(req,res)
 
 app.post('/login_client',async function(req,res)
 {
-    //console.log("PING LOGIN CLIENT")
-    //console.log(req.body)
     try{
 
         var data = await ClientController.loginClientController(req.body.usuario,req.body.password)
@@ -95,6 +93,7 @@ app.post('/login_client',async function(req,res)
         }
 
     }catch (e) {
+        //console.log(e)
         res.status(500).json({msm:e.toString()})
     }
 })
