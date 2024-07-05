@@ -14,6 +14,19 @@ class ServiceModel {
             return {error:e.toString()}
         }
     }
+
+    static async readServiceModel(type_service)
+    {
+        try {
+            var sql = "SELECT S.idservice,S.name_service,S.otp FROM service AS S WHERE S.status = 1"
+            var conn = await connDB()
+            var data = await conn.query(sql)
+            await conn.close()
+            return {response:data}
+        }catch (e) {
+            return {msm:e.toString()}
+        }
+    }
 }
 
 module.exports = ServiceModel

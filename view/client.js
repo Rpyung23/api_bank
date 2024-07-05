@@ -81,6 +81,7 @@ app.post('/login_client',async function(req,res)
                 res.status(200).json({
                     token:jwt,
                     username:data.data[0].pk_usuario_banca,
+                    clien_fot_paths:(process.env["PATHSERVERIMG"]+data.data[0].clien_fot_paths).replaceAll('u:/',''),
                     first_name:data.data[0].clien_nom_clien,
                     last_name:data.data[0].clien_ape_clien,
                     welcome_msm: data.data[0].welcome_msm,

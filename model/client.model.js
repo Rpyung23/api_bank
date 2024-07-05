@@ -40,11 +40,11 @@ class ClientModel
     {
         try {
             var conn = await connDB()
-            var sql = "SELECT UB.pk_usuario_banca,UB.contrasenia_banca,C.clien_cod_clien,TRIM(C.clien_ide_clien) clien_ide_clien," +
+            var sql = "SELECT clien_fot_paths,UB.pk_usuario_banca,UB.contrasenia_banca,C.clien_cod_clien,TRIM(C.clien_ide_clien) clien_ide_clien," +
                 "TRIM(C.clien_nom_clien) clien_nom_clien,TRIM(C.clien_ape_clien) clien_ape_clien," +
                 "UB.imei_ult_ingreso,UB.ip_ult_ingreso,C.clien_cod_empre,C.clien_cod_ofici,trim(UB.welcome_msm) welcome_msm FROM cnx_usuario_banca AS UB INNER JOIN cnxclien AS C ON UB.fk_clien_cod_clien = C.clien_cod_clien " +
                 "WHERE UB.pk_usuario_banca = '"+usuario+"' and estado = 1"
-            //console.log(sql)
+            console.log(sql)
             var result = await conn.query(sql)
             await conn.close()
             //console.log(result)

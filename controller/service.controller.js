@@ -5,6 +5,11 @@ class ServiceController
     {
         return await ServiceModel.readTypeServiceModel()
     }
+
+    static async readServiceController(typeService)
+    {
+        return await ServiceModel.readServiceModel(typeService)
+    }
 }
 
 module.exports = ServiceController
