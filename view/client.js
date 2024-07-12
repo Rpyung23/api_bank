@@ -10,6 +10,7 @@ const checkPassword = require("../util/checkPassword");
 const Notification = require('../util/notification')
 const {getFechaHoraActual} = require('../util/fechaFormat')
 const {htmlLogin} = require('../util/htmlContent')
+const {downloadImageAndConvertToBlob} = require('../util/downloadImage')
 
 //Inicializamos la instancia de AWS Rekognition
 // b*D09-Bl
@@ -116,69 +117,6 @@ app.delete('/logout_client',async function(req,res)
     }
 })
 
-app.post('/check_face_id',upload.fields([{ name: 'dni_picture', maxCount: 1 }, { name: 'face_picture', maxCount: 1 }]),async function(req,res)
-{
-    const file_dni_picture  = req.files['dni_picture'][0]
-    const file_face_picture  = req.files['face_picture'][0]
-
-    if(!file_dni_picture || !file_face_picture) {
-        return res.status(400).json({msm:"IMAGEN DNI / FACE NO RECIBIDA"})
-    }
-
-    const rekognition = new AWS.Rekognition();
-
-    const params = {
-        Image: {
-            Bytes: file_dni_picture.buffer
-        }
-    }
-
-    try {
-        const response = await rekognition.detectText(params).promise();
-        const detections = response.TextDetections.map(detects=> detects.DetectedText)
-
-        var isEncontrado = detections.some(detections => detections.includes(req.body.dni_client))
-
-        if(!isEncontrado) return res.status(200).json({
-            stadus_code : 300,
-            similarity:0,
-            msm : "No se ha podido identificar el numero de cédula"
-        })
-
-        var params_ = {
-            SourceImage: {
-                Bytes: file_dni_picture.buffer
-            },
-            TargetImage: {
-                Bytes: file_face_picture.buffer
-            },
-            SimilarityThreshold: 70
-        }
-
-        rekognition.compareFaces(params_,function (error,response){
-            if (error) return res.status(400).json({
-                msm : error.toString()
-            })
-
-            return res.status(200).json({
-                stadus_code : response.FaceMatches.length > 0 ? 200 : 300,
-                similarity: response.FaceMatches.length > 0 ? parseFloat((response.FaceMatches[0].Similarity).toFixed(2)) : 0,
-                msm : response.FaceMatches.length == 0 ? "NO SE RETORNO EL FACEMATCHES" : "API REST FACE ID OK"
-            })
-        })
-
-        /*res.status(200).json({
-            stadus_code : 200,
-            data: dataCompare,
-            msm : "NUMERO DE DNI ENCONTRADO"
-        })*/
-
-
-    } catch (error) {
-        return res.status(500).send({msm:error.toString()})
-    }
-})
-
 app.put('/updateTokenFirebase',Jwt.checkJwt,async function(req,res){
     try {
         await ClientController.updateTokenNotificationController(req.body.code_id_client,req.body.code_usu_banca,req.body.tokenfirebase)
@@ -240,6 +178,125 @@ app.get('/cajas_oficina',Jwt.checkJwt,async function(req,res)
         }
     }catch (e) {
         res.status(500).json({msm:e.toString()})
+    }
+})
+
+app.post('/check_face_id',upload.fields([{ name: 'face_picture', maxCount: 1 }]),async function(req,res)
+{
+    const file_dni_picture  = await downloadImageAndConvertToBlob('')
+    const file_face_picture  = req.files['face_picture'][0]
+
+    if(!file_face_picture) {
+        return res.status(400).json({msm:"IMAGEN FACIAL NO RECIBIDA"})
+    }
+
+    const rekognition = new AWS.Rekognition();
+
+    /*const params = {
+        Image: {
+            Bytes: file_dni_picture.buffer
+        }
+    }*/
+
+    try {
+        /*const response = await rekognition.detectText(params).promise();
+        const detections = response.TextDetections.map(detects=> detects.DetectedText)
+
+        var isEncontrado = detections.some(detections => detections.includes(req.body.dni_client))
+
+        if(!isEncontrado) return res.status(200).json({
+            stadus_code : 300,
+            similarity:0,
+            msm : "No se ha podido identificar el numero de cédula"
+        })*/
+
+        var params_ = {
+            SourceImage: {
+                Bytes: file_dni_picture.buffer
+            },
+            TargetImage: {
+                Bytes: file_face_picture.buffer
+            },
+            SimilarityThreshold: 70
+        }
+
+        rekognition.compareFaces(params_,function (error,response)
+        {
+            if (error) return res.status(400).json({
+                msm : error.toString()
+            })
+
+            return res.status(response.FaceMatches.length > 0 ? 200 : 300).json({
+                similarity: response.FaceMatches.length > 0 ? parseFloat((response.FaceMatches[0].Similarity).toFixed(2)) : 0,
+                msm : response.FaceMatches.length == 0 ? "NO SE RETORNO EL FACEMATCHES" : "API REST FACE ID OK"
+            })
+        })
+
+        /*res.status(200).json({
+            stadus_code : 200,
+            data: dataCompare,
+            msm : "NUMERO DE DNI ENCONTRADO"
+        })*/
+
+
+    } catch (error) {
+        return res.status(500).send({msm:error.toString()})
+    }
+})
+
+app.post('/check_dni',async function(req,res)
+{
+    const file_dni_picture  = await downloadImageAndConvertToBlob('https://firebasestorage.googleapis.com/v0/b/bank-da882.appspot.com/o/WhatsApp%20Image%202024-07-12%20at%2001.57.35.jpeg?alt=media')
+    const file_dni_picture_back  = await downloadImageAndConvertToBlob('https://firebasestorage.googleapis.com/v0/b/bank-da882.appspot.com/o/WhatsApp%20Image%202024-07-12%20at%2001.57.43.jpeg?alt=media')
+    //const file_face_picture  = req.files['face_picture'][0]
+
+    if(!file_dni_picture && !file_dni_picture_back) {
+        return res.status(400).json({msm:"IMAGEN DNI NO RECIBIDA"})
+    }
+
+    const rekognition = new AWS.Rekognition();
+
+    const params = {
+        Image: {
+            Bytes: file_dni_picture.buffer
+        }
+    }
+
+    const paramshuella = {
+        Image: {
+            Bytes: file_dni_picture_back.buffer
+        }
+    }
+
+    try {
+        const response = await rekognition.detectText(params).promise();
+        const responseHuella = await rekognition.detectText(paramshuella).promise();
+
+        const detections = response.TextDetections.map(detects=> detects.DetectedText)
+        const detectionsHuella = responseHuella.TextDetections.map(detects=> detects.DetectedText)
+
+        var isEncontradoDni = detections.some(detections => detections.includes(req.body.dni_client))
+        var isHuellaDac = detectionsHuella.some(detections => detections.includes(req.body.huella))
+
+        if(isEncontradoDni && isHuellaDac)
+        {
+            res.status(200).json({
+                msm:"DATOS ENCONTRADO CON EXITO"
+            })
+        }else{
+            res.status(500).json({
+                msm: `No se ha podido identificar el numero de cédula / huella dactilar`
+            })
+        }
+
+        /*if(!isEncontrado) return res.status(200).json({
+            stadus_code : 300,
+            similarity:0,
+            msm : "No se ha podido identificar el numero de cédula"
+        })*/
+
+    } catch (error) {
+        return res.status(500).send({msm:error.toString()})
     }
 })
 
