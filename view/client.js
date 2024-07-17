@@ -24,6 +24,20 @@ AWS.config.update({
     apiVersion: '2016-06-27'
 })
 
+app.put('/recovery_update_password',async function(req,res)
+{
+    try {
+        var response = await ClientController.updatePasswordController(req.body.idClient,req.body.passw)
+        if(response.error != undefined){
+            res.status(500).json({msm:response.error})
+        }else{
+            res.status(200).json({msm:"Su contraseña ha sido actualizada con éxito"})
+        }
+    }catch (e) {
+        res.status(500).json({msm:e.toString()})
+    }
+})
+
 app.get('/profile_client',Jwt.checkJwt,async function(req,res)
 {
     try {
@@ -181,9 +195,23 @@ app.get('/cajas_oficina',Jwt.checkJwt,async function(req,res)
     }
 })
 
-app.post('/check_face_id',upload.fields([{ name: 'face_picture', maxCount: 1 }]),async function(req,res)
+app.post('/check_face_id/:idClient',upload.fields([{ name: 'face_picture', maxCount: 1 }]),async function(req,res)
 {
-    const file_dni_picture  = await downloadImageAndConvertToBlob('')
+
+    var oResponseDataValidate = await ClientController.readDataValidateController(req.params.idClient,false)
+
+    if(oResponseDataValidate.error != undefined){
+        return res.status(500).json(oResponseDataValidate.error)
+    }
+    if(oResponseDataValidate.data.clien_fot_dni_front == null || oResponseDataValidate.data.clien_fot_dni_back == null
+        || oResponseDataValidate.data.clien_fot_face == null || oResponseDataValidate.data.clien_fot_dni_front.isEmpty
+        || oResponseDataValidate.data.clien_fot_dni_back.isEmpty
+        || oResponseDataValidate.data.clien_fot_face.isEmpty)
+    {
+        return res.status(204).json({msm:'Por favor, acérquese a una agencia para actualizar sus datos.'})
+    }
+
+    const file_dni_picture  = await downloadImageAndConvertToBlob(oResponseDataValidate.data.clien_fot_face)
     const file_face_picture  = req.files['face_picture'][0]
 
     if(!file_face_picture) {
@@ -222,13 +250,13 @@ app.post('/check_face_id',upload.fields([{ name: 'face_picture', maxCount: 1 }])
 
         rekognition.compareFaces(params_,function (error,response)
         {
-            if (error) return res.status(400).json({
+            if (error) return res.status(500).json({
                 msm : error.toString()
             })
 
-            return res.status(response.FaceMatches.length > 0 ? 200 : 300).json({
-                similarity: response.FaceMatches.length > 0 ? parseFloat((response.FaceMatches[0].Similarity).toFixed(2)) : 0,
-                msm : response.FaceMatches.length == 0 ? "NO SE RETORNO EL FACEMATCHES" : "API REST FACE ID OK"
+            return res.status(200).json({
+                similarity: response.FaceMatches.length > 0 ? (response.FaceMatches[0].Similarity) : 0,
+                msm : response.FaceMatches.length == 0 ? "NO SE RETORNO EL FACEMATCHES" : `SIMILITUD DE ${response.FaceMatches[0].Similarity} %`
             })
         })
 
@@ -246,57 +274,81 @@ app.post('/check_face_id',upload.fields([{ name: 'face_picture', maxCount: 1 }])
 
 app.post('/check_dni',async function(req,res)
 {
-    const file_dni_picture  = await downloadImageAndConvertToBlob('https://firebasestorage.googleapis.com/v0/b/bank-da882.appspot.com/o/WhatsApp%20Image%202024-07-12%20at%2001.57.35.jpeg?alt=media')
-    const file_dni_picture_back  = await downloadImageAndConvertToBlob('https://firebasestorage.googleapis.com/v0/b/bank-da882.appspot.com/o/WhatsApp%20Image%202024-07-12%20at%2001.57.43.jpeg?alt=media')
-    //const file_face_picture  = req.files['face_picture'][0]
-
-    if(!file_dni_picture && !file_dni_picture_back) {
-        return res.status(400).json({msm:"IMAGEN DNI NO RECIBIDA"})
-    }
-
-    const rekognition = new AWS.Rekognition();
-
-    const params = {
-        Image: {
-            Bytes: file_dni_picture.buffer
-        }
-    }
-
-    const paramshuella = {
-        Image: {
-            Bytes: file_dni_picture_back.buffer
-        }
-    }
-
+    //console.log(req.body)
     try {
-        const response = await rekognition.detectText(params).promise();
-        const responseHuella = await rekognition.detectText(paramshuella).promise();
+        // Obtiene las url para validar los datos
+        var oResponseDataValidate = await ClientController.readDataValidateController(req.body.dni_client,req.body.searchDni)
+        //console.log(oResponseDataValidate.data[0])
 
-        const detections = response.TextDetections.map(detects=> detects.DetectedText)
-        const detectionsHuella = responseHuella.TextDetections.map(detects=> detects.DetectedText)
-
-        var isEncontradoDni = detections.some(detections => detections.includes(req.body.dni_client))
-        var isHuellaDac = detectionsHuella.some(detections => detections.includes(req.body.huella))
-
-        if(isEncontradoDni && isHuellaDac)
+        if(oResponseDataValidate.error != undefined){
+            return res.status(500).json(oResponseDataValidate.error)
+        }
+        if(oResponseDataValidate.data.clien_fot_dni_front == null || oResponseDataValidate.data.clien_fot_dni_back == null
+            || oResponseDataValidate.data.clien_fot_face == null || oResponseDataValidate.data.clien_fot_dni_front.isEmpty
+            || oResponseDataValidate.data.clien_fot_dni_back.isEmpty
+            || oResponseDataValidate.data.clien_fot_face.isEmpty)
         {
-            res.status(200).json({
-                msm:"DATOS ENCONTRADO CON EXITO"
-            })
-        }else{
-            res.status(500).json({
-                msm: `No se ha podido identificar el numero de cédula / huella dactilar`
-            })
+            return res.status(204).json({msm:'Por favor, acérquese a una agencia para actualizar sus datos.'})
         }
 
-        /*if(!isEncontrado) return res.status(200).json({
-            stadus_code : 300,
-            similarity:0,
-            msm : "No se ha podido identificar el numero de cédula"
-        })*/
+        /*var file_dni_picture  = await downloadImageAndConvertToBlob('http://172.31.5.164/firmfoto/ofic3101/fttest002.jpg')
+        var file_dni_picture_back  = await downloadImageAndConvertToBlob('http://172.31.5.164/firmfoto/ofic3101/fttest003.jpg')*/
 
-    } catch (error) {
-        return res.status(500).send({msm:error.toString()})
+        var file_dni_picture  = await downloadImageAndConvertToBlob(oResponseDataValidate.data.clien_fot_dni_front)
+        var file_dni_picture_back  = await downloadImageAndConvertToBlob(oResponseDataValidate.data.clien_fot_dni_back)
+        //const file_face_picture  = req.files['face_picture'][0]
+
+        if(!file_dni_picture && !file_dni_picture_back) {
+            return res.status(400).json({msm:"IMAGEN DNI NO RECIBIDA"})
+        }
+
+        const rekognition = new AWS.Rekognition();
+
+        const params = {
+            Image: {
+                Bytes: file_dni_picture.buffer
+            }
+        }
+
+        const paramshuella = {
+            Image: {
+                Bytes: file_dni_picture_back.buffer
+            }
+        }
+
+        try {
+            const response = await rekognition.detectText(params).promise();
+            const responseHuella = await rekognition.detectText(paramshuella).promise();
+
+            const detections = response.TextDetections.map(detects=> detects.DetectedText)
+            const detectionsHuella = responseHuella.TextDetections.map(detects=> detects.DetectedText)
+
+            var isEncontradoDni = detections.some(detections => detections.includes(req.body.dni_client))
+            var isHuellaDac = detectionsHuella.some(detections => detections.includes(req.body.huella))
+
+            if(isEncontradoDni && isHuellaDac)
+            {
+                res.status(200).json({
+                    msm:"DATOS ENCONTRADO CON EXITO",
+                    clien_cod_clien:oResponseDataValidate.data.clien_cod_clien
+                })
+            }else{
+                res.status(500).json({
+                    msm: `No se ha podido identificar el numero de cédula / huella dactilar`
+                })
+            }
+
+            /*if(!isEncontrado) return res.status(200).json({
+                stadus_code : 300,
+                similarity:0,
+                msm : "No se ha podido identificar el numero de cédula"
+            })*/
+
+        } catch (error) {
+            return res.status(500).send({msm:error.toString()})
+        }
+    }catch (e) {
+        return res.status(500).send({msm: "Lo sentimos, sus credenciales no han sido encontradas."})
     }
 })
 

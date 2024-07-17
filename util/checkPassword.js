@@ -1,5 +1,6 @@
 require('dotenv').config()
 const bcrypt = require('bcryptjs');
+
 let checkPassword = async (pass_into,pass_sql) =>
 {
     await bcrypt.genSalt(parseInt(process.env.SALT_BCRYPT))

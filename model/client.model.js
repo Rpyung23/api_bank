@@ -1,7 +1,57 @@
+require('dotenv').config()
 const connDB = require('../config/conn')
 const checkPassword = require('../util/checkPassword')
+const createPassword = require('../util/createPassword')
 class ClientModel
 {
+    static async updatePasswordModel(idClient,pass)
+    {
+        try {
+            var conn = await connDB()
+            var sql = "UPDATE cnx_usuario_banca SET contrasenia_banca = '"+await createPassword(pass)+"'," +
+                "imei_ult_ingreso = NULL,ip_ult_ingreso = null WHERE fk_clien_cod_clien = "+idClient
+            console.log(sql)
+            await conn.query(sql)
+            await conn.close()
+            return {estado:true}
+        }catch (e) {
+            return {error:e.toString()}
+        }
+
+    }
+
+    static async readDataValidateModel(dni_client,searchDni)
+    {
+        try {
+            var conn = await connDB()
+            if(searchDni){
+                var sql = "SELECT first 1 clien_cod_clien,TRIM(clien_ide_clien) clien_ide_clien," +
+                    "TRIM(clien_fot_dni_front) clien_fot_dni_front,TRIM(clien_fot_dni_back) clien_fot_dni_back," +
+                    "TRIM(clien_fot_face) clien_fot_face FROM cnxclien WHERE TRIM(clien_ide_clien) = '"+dni_client+"'"
+            }else{
+                var sql = "SELECT first 1 clien_cod_clien,TRIM(clien_ide_clien) clien_ide_clien," +
+                    "TRIM(clien_fot_dni_front) clien_fot_dni_front,TRIM(clien_fot_dni_back) clien_fot_dni_back," +
+                    "TRIM(clien_fot_face) clien_fot_face FROM cnxclien WHERE clien_cod_clien = "+dni_client
+            }
+            //console.log(sql)
+            var datos = await conn.query(sql)
+            //console.log(datos)
+
+            for(var i = 0;i <datos.length ;i++)
+            {
+                datos[i].clien_fot_dni_back = datos[i].clien_fot_dni_back.replace('u:/firmfoto/',process.env.PATHSERVERIMG)
+                datos[i].clien_fot_face = datos[i].clien_fot_face.replace('u:/firmfoto/',process.env.PATHSERVERIMG)
+                datos[i].clien_fot_dni_front = datos[i].clien_fot_dni_front.replace('u:/firmfoto/',process.env.PATHSERVERIMG)
+            }
+            await conn.close()
+            //console.log(datos[0])
+            return {data: datos[0]}
+        }catch (e) {
+            console.log(e.toString())
+            return {error:e.toString()}
+        }
+    }
+
     static async readProfileClientModel(id_client){
         try {
             var conn = await connDB()
@@ -36,6 +86,7 @@ class ClientModel
             return {error:e.toString()}
         }
     }
+
     static async loginClientModel(usuario)
     {
         try {

@@ -1,6 +1,12 @@
 const ClientModel = require('../model/client.model')
 class ClientController
 {
+    static async updatePasswordController(idClient,pass){
+        return await ClientModel.updatePasswordModel(idClient,pass)
+    }
+    static async readDataValidateController(dni_client,searchDni){
+        return await ClientModel.readDataValidateModel(dni_client,searchDni)
+    }
     static async readProfileClientController(id_client){
         return await ClientModel.readProfileClientModel(id_client)
     }
