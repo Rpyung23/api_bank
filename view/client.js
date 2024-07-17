@@ -256,7 +256,7 @@ app.post('/check_face_id/:idClient',upload.fields([{ name: 'face_picture', maxCo
 
             return res.status(200).json({
                 similarity: response.FaceMatches.length > 0 ? (response.FaceMatches[0].Similarity) : 0,
-                msm : response.FaceMatches.length == 0 ? "NO SE RETORNO EL FACEMATCHES" : `SIMILITUD DE ${response.FaceMatches[0].Similarity} %`
+                msm : response.FaceMatches.length == 0 ? "Lo sentimos, no hemos podido reconocer tus rasgos faciales." : `SIMILITUD DE ${response.FaceMatches[0].Similarity} %`
             })
         })
 
