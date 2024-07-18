@@ -21,7 +21,7 @@ const contact = require('./view/contact')
 const ping = require('./view/ping')
 const service = require('./view/service')
 const pagofacil = require('./view/pagofacil')
-
+const investment = require('./view/investment')
 app.use(client)
 app.use(account)
 app.use(transaction)
@@ -32,6 +32,7 @@ app.use(contact)
 app.use(ping)
 app.use(service)
 app.use(pagofacil)
+app.use(investment)
 
 app.listen(process.env.PORT,function () {
     console.log(`SERVER API REST ${process.env.PORT}`)

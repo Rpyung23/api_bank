@@ -76,12 +76,12 @@ class TransactionModel {
                 detail = ""
             }
 
-            nombre_clien.replace(/�/g, '');
+            nombre_clien = nombre_clien.replace(/�/g, '');
 
             var conn = await connDB()
             var sql = `CALL cnxprc_reg_spi01(${cod_empresa},${cod_oficina},${cod_caja},${cli_empresa},${cli_ofici},${cod_clien},'${dni_client}','${nombre_clien}','${account_origin}',
                                     ${valtrans},'${id_clien_dest}','${name_clien_dest}',${codofi},'${account_des}',${type_account},'${detail}',1);`
-            ///console.log(sql)
+            console.log(sql)
             var response = await conn.query(sql)
             await conn.close()
             return {data:response}
