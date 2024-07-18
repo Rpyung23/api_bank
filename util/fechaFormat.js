@@ -228,7 +228,7 @@ let getFechaActual = ()=>
     var  fecha  = new Date();
     var mes = (fecha.getMonth()+1)
     var day = fecha.getDay()
-    var format = fecha.getFullYear()+"-"+(mes<10 ? "0"+mes : mes)+"-"+(day<10 ? "0"+day : day)
+    var format = (day<10 ? "0"+day : day)+"-"+(mes<10 ? "0"+mes : mes)+"-"+fecha.getFullYear()
     //console.log(format)
     return format
 }

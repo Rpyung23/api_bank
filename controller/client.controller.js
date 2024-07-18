@@ -1,6 +1,17 @@
 const ClientModel = require('../model/client.model')
 class ClientController
 {
+    static async checkExistAccountBancaController(cliencodclien){
+        return await ClientModel.checkExistAccountBancaModel(cliencodclien)
+    }
+    static async createNewUserController(usuario_banca,clien_cod_clien,
+                                    contrasenia_banca,welcome_msm){
+        return await ClientModel.createNewUserModel(usuario_banca,clien_cod_clien,
+            contrasenia_banca,welcome_msm)
+    }
+    static async isExistUsernameController(username){
+        return await ClientModel.isExistUsernameModel(username)
+    }
     static async updatePasswordController(idClient,pass){
         return await ClientModel.updatePasswordModel(idClient,pass)
     }

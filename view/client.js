@@ -24,6 +24,42 @@ AWS.config.update({
     apiVersion: '2016-06-27'
 })
 
+app.get('/isExistAccount/:codeclien',async function(req,res){
+    try {
+        var response = await ClientController.checkExistAccountBancaController(req.params.codeclien)
+        //console.log(response)
+        res.status(response ? 200 : 500).json({msm:response ? "OK" : "Lo sentimos, ya posee una cuenta de banca móvil/web."})
+    }catch (e) {
+        res.status(500).json({msm:e.toString()})
+    }
+})
+
+
+app.post('/createUserBanca',async function(req,res){
+    try {
+        var response = await ClientController.createNewUserController(req.body.usuario_banca,
+            req.body.clien_cod_clien,req.body.contrasenia_banca,req.body.welcome_msm)
+        //console.log(response)
+        if(response){
+            res.status(200).json({msm:"OK"})
+        }else{
+            res.status(500).json({msm:'Lamentamos informarle que no ha sido posible crear su cuenta en este momento.'})
+        }
+    }catch (e) {
+        res.status(500).json({msm:e.toString()})
+    }
+})
+
+app.get('/isExistUsername/:username',async function(req,res){
+    try {
+        var response = await ClientController.isExistUsernameController(req.params.username)
+        //console.log(response)
+        res.status(response ? 200 : 500).json({msm:response ? "OK" : "Lo sentimos, el nombre de usuario no está disponible."})
+    }catch (e) {
+        res.status(500).json({msm:e.toString()})
+    }
+})
+
 app.put('/recovery_update_password',async function(req,res)
 {
     try {
@@ -330,7 +366,8 @@ app.post('/check_dni',async function(req,res)
             {
                 res.status(200).json({
                     msm:"DATOS ENCONTRADO CON EXITO",
-                    clien_cod_clien:oResponseDataValidate.data.clien_cod_clien
+                    clien_cod_clien:oResponseDataValidate.data.clien_cod_clien,
+                    welcome_msm: oResponseDataValidate.data.welcome_msm
                 })
             }else{
                 res.status(500).json({

@@ -2,8 +2,60 @@ require('dotenv').config()
 const connDB = require('../config/conn')
 const checkPassword = require('../util/checkPassword')
 const createPassword = require('../util/createPassword')
+const {getFechaActual} = require('../util/fechaFormat')
+const {eliminarCaracteresEspeciales} = require('../util/string')
 class ClientModel
 {
+    static async createNewUserModel(usuario_banca,clien_cod_clien,
+                                    contrasenia_banca,welcome_msm)
+    {
+        try {
+            var conn = await connDB()
+            var sql = "INSERT INTO cnx_usuario_banca(pk_usuario_banca,fk_clien_cod_clien,contrasenia_banca,welcome_msm,estado,fecha_creacion) VALUES ('"+usuario_banca+"',"+clien_cod_clien+",'"+await createPassword(contrasenia_banca)+"','"+eliminarCaracteresEspeciales(welcome_msm)+"',1,'"+getFechaActual()+"')"
+            console.log(sql)
+            await conn.query(sql)
+            await conn.close()
+            return true
+        }catch (e) {
+            console.log(`ERROR : ${e.toString()}`)
+            return false
+        }
+    }
+
+    static async checkExistAccountBancaModel(cliencodclien){
+        try {
+            var conn = await connDB()
+            var sql = "SELECT count(*) contador FROM cnx_usuario_banca WHERE fk_clien_cod_clien = "+cliencodclien+" AND estado != 4;"
+            var data  = await conn.query(sql)
+            await conn.close()
+            if(data[0].contador > 0){
+                return false
+            }
+            return true
+        }catch (e) {
+            console.log(e.toString())
+            return false;
+        }
+    }
+
+    static async isExistUsernameModel(username){
+        try {
+            var conn = await connDB()
+            var sql = "SELECT count(*) contador FROM cnx_usuario_banca WHERE  pk_usuario_banca = '"+username+"'"
+            var data  = await conn.query(sql)
+            await conn.close()
+            //console.log(data[0].contador)
+            if(data[0].contador > 0){
+                //console.log(" > 0")
+                return false
+            }
+            return true
+        }catch (e) {
+            console.log(e.toString())
+            return false;
+        }
+    }
+
     static async updatePasswordModel(idClient,pass)
     {
         try {
@@ -25,11 +77,13 @@ class ClientModel
         try {
             var conn = await connDB()
             if(searchDni){
-                var sql = "SELECT first 1 clien_cod_clien,TRIM(clien_ide_clien) clien_ide_clien," +
+                var sql = "SELECT first 1 concat(TRIM(clien_nom_clien),concat(' ',TRIM(clien_ape_clien))) welcome_msm," +
+                    "clien_cod_clien,TRIM(clien_ide_clien) clien_ide_clien," +
                     "TRIM(clien_fot_dni_front) clien_fot_dni_front,TRIM(clien_fot_dni_back) clien_fot_dni_back," +
                     "TRIM(clien_fot_face) clien_fot_face FROM cnxclien WHERE TRIM(clien_ide_clien) = '"+dni_client+"'"
             }else{
-                var sql = "SELECT first 1 clien_cod_clien,TRIM(clien_ide_clien) clien_ide_clien," +
+                var sql = "SELECT first 1 concat(TRIM(clien_nom_clien),concat(' ',TRIM(clien_ape_clien))) welcome_msm," +
+                    "clien_cod_clien,TRIM(clien_ide_clien) clien_ide_clien," +
                     "TRIM(clien_fot_dni_front) clien_fot_dni_front,TRIM(clien_fot_dni_back) clien_fot_dni_back," +
                     "TRIM(clien_fot_face) clien_fot_face FROM cnxclien WHERE clien_cod_clien = "+dni_client
             }
