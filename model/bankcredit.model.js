@@ -3,10 +3,14 @@ class BankcreditModel {
     static async readBankCreditModel(id_code_client){
         try {
             var conn = await connDB()
-            var sql = "SELECT sbtcr_cod_sbtcr,TRIM(sbtcr_des_sbtcr) sbtcr_des_sbtcr,credi_val_credi, credi_cod_credi," +
-                "TO_CHAR(credi_fec_inici,'%Y-%m-%d') credi_fec_inici,credi_num_cuota," +
-                "ecred_cod_ecred,TRIM(ecred_des_ecred) ecred_des_ecred FROM cnxsbtcr, cnxcredi,cnxecred WHERE sbtcr_cod_sbtcr = credi_cod_sbtcr " +
-                "AND credi_cod_ecred = ecred_cod_ecred AND credi_cod_clien = 6186 AND ecred_cod_ecred != 5;"
+            var sql = "SELECT TRIM(clien_ide_clien) clien_ide_clien,TRIM(clien_nom_clien) clien_nom_clien," +
+                "TRIM(clien_ape_clien) clien_ape_clien,sbtcr_cod_sbtcr,TRIM(sbtcr_des_sbtcr) sbtcr_des_sbtcr," +
+                "credi_val_credi, credi_cod_credi,TO_CHAR(credi_fec_inici,'%Y-%m-%d') credi_fec_inici," +
+                "credi_num_cuota,ecred_cod_ecred,TRIM(ecred_des_ecred) ecred_des_ecred FROM cnxsbtcr, " +
+                "cnxcredi,cnxecred,cnxclien WHERE credi_cod_clien = clien_cod_clien AND  " +
+                "sbtcr_cod_sbtcr = credi_cod_sbtcr AND credi_cod_ecred = ecred_cod_ecred AND " +
+                `credi_cod_clien = ${id_code_client} AND ecred_cod_ecred != 5;`
+            console.log(sql)
             var result = await conn.query(sql)
             await conn.close()
             for(var i = 0;i<result.length;i++){
@@ -14,6 +18,7 @@ class BankcreditModel {
             }
             return {data:result}
         }catch (e) {
+            console.log(e.toString())
             return {error:e.toString()}
         }
     }
@@ -34,6 +39,7 @@ class BankcreditModel {
                 "TRIM((select edivi_des_edivi from cnxedivi where edivi_cod_edivi = divid_cod_edivi)) as estado," +
                 "TO_CHAR(divid_fec_ulpag,'%Y-%m-%d') as feculpag from cnxdivid where divid_cod_credi='"+id_credit+"' " +
                 "order by divid_num_divid"
+            //console.log(sql)
             var result = await conn.query(sql)
             await conn.close()
             for(var i = 0;i<result.length;i++){
