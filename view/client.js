@@ -91,7 +91,7 @@ app.get('/profile_client',Jwt.checkJwt,async function(req,res)
 
 app.post('/login_client',async function(req,res)
 {
-    console.log(req.body)
+    //console.log(req.body)
     try{
 
         var data = await ClientController.loginClientController(req.body.usuario,req.body.password)
@@ -103,13 +103,13 @@ app.post('/login_client',async function(req,res)
         //console.log(data.data[0])
         var jwt = data.data.length > 0 ? Jwt.createJWT(data.data[0]) : null
 
-        if(data.data[0].imei_ult_ingreso != null && data.data[0].imei_ult_ingreso != undefined)
+        /*if(data.data[0].imei_ult_ingreso != null && data.data[0].imei_ult_ingreso != undefined)
         {
             if(data.data[0].imei_ult_ingreso != req.body.imeiaccess)
             {
                 return res.status(500).json({ msm : "NO PUEDE INICIAR SESIÓN EN LA APLICACIÓN PORQUE YA ESTÁ ABIERTA EN OTRO DISPOSITIVO. POR FAVOR, CIERRA LA SESIÓN EN EL OTRO DISPOSITIVO PARA PODER ACCEDER AQUÍ."})
             }
-        }
+        }*/
 
         if(jwt != null)
         {
