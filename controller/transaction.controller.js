@@ -24,6 +24,12 @@ class TransactionController
             cli_ofici,cod_clien, dni_client, nombre_clien,account_origin,valtrans,id_clien_dest,name_clien_dest,
             codofi,account_des,type_account,detail)
     }
+
+    static async createTransactionPagoFacilController(cod_empresa,cod_oficina,cod_caja,detail_service,num_cuenta,
+                                                      valor){
+        return await TransactionModel.createTransactionPagoFacilModel(cod_empresa,cod_oficina,cod_caja,detail_service,num_cuenta,
+            valor)
+    }
 }
 
 module.exports = TransactionController

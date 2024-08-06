@@ -2,8 +2,10 @@ require('dotenv').config()
 const axios = require('axios')
 const express = require('express')
 const app = express()
-
-
+const TransactionController = require('../controller/transaction.controller')
+const ClientController = require("../controller/client.controller");
+const Jwt = require("../util/jwt");
+const uuid  = require('uuid');
 app.get('/AuthPagoFacil',async function (req,res)
 {
     //console.log(process.env.URLPAGOFAIL+"/auth/token")
@@ -58,22 +60,56 @@ app.post('/ConsultaPagoFacil',async function (req,res)
 })
 
 
-app.post('/PayPagoFacil',async function (req,res)
+app.post('/PayPagoFacil',Jwt.checkJwt,async function (req,res)
 {
     //console.log(req.body)
     try {
-        var response = await axios.post(process.env.URLPAGOFAIL+"/pago",{
-            uuid: req.body.uuid,
-            datosFacturacion: req.body.datosFacturacion,
-            rubro: req.body.rubro,
-            datosAdicionales: {}
-        },{headers:{ Authorization: `Bearer ${req.body.accesstoken}` }})
+        var cajas = await ClientController.readCajaClientController(req.body.code_id_client,req.body.clien_cod_ofici)
+        if(cajas.data.cajas_cod_cajas != undefined && cajas.data.cajas_cod_cajas > 0 )
+        {
+            var response = await axios.post(process.env.URLPAGOFAIL+"/pago",{
+                uuid: req.body.uuid,
+                datosFacturacion: req.body.datosFacturacion,
+                rubro: req.body.rubro,
+                datosAdicionales: {}
+            },{headers:{ Authorization: `Bearer ${req.body.accesstoken}` }})
 
-        res.status(response.status).json(response.data)
+            if(response.status == 200 && response.data.success)
+            {
+                var responseTrans = await TransactionController.createTransactionPagoFacilController(req.body.clien_cod_empre,
+                    req.body.clien_cod_ofici,cajas.data.cajas_cod_cajas,req.body.detail_service,
+                    req.body.num_cuenta,req.body.rubro.valorTotal)
+
+                console.log(`CODIGO TRANSFERENCIA ${responseTrans.data[0][""]}`)
+
+                if(responseTrans.error != undefined){
+                    // ELIMINAR EL COBRO YA REALIZADO
+                    var responseReverso = await axios.post(process.env.URLPAGOFAIL+"/reverso",{
+                        uuid: uuid.v4(),
+                        idRubro: req.body.datosFacturacion,
+                        valorTotal: req.body.rubro.valorTotal,
+                    },{headers:{ Authorization: `Bearer ${req.body.accesstoken}` }})
+
+                    return res.status(500).json({
+                        message: 'No se ha podido realizar el débito del monto',
+                        success: false,
+                        resultCode: 0
+                    })
+                }
+            }
+            res.status(response.status).json(response.data)
+        }else{
+            res.status(500).json({
+                message: 'No existen cajas disponibles',
+                success: false,
+                resultCode: 0
+            })
+        }
+
     }catch (e) {
         res.status(500).json({
             message: e.toString(),
-            success: true,
+            success: false,
             resultCode: 0
         })
     }
@@ -107,5 +143,7 @@ app.post('/InvoicePagoFacil',async function (req,res)
     }
 
 })
+
+
 
 module.exports = app

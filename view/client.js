@@ -91,6 +91,7 @@ app.get('/profile_client',Jwt.checkJwt,async function(req,res)
 
 app.post('/login_client',async function(req,res)
 {
+    console.log(req.body)
     try{
 
         var data = await ClientController.loginClientController(req.body.usuario,req.body.password)
@@ -152,7 +153,7 @@ app.post('/login_client',async function(req,res)
 
 app.delete('/logout_client',async function(req,res)
 {
-    //console.log("PING LOGIN CLIENT")
+
     //console.log(req.body)
     try{
 

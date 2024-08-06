@@ -90,6 +90,21 @@ class TransactionModel {
             return  {error:e.toString()}
         }
     }
+
+
+    static async createTransactionPagoFacilModel(cod_empresa,cod_oficina,cod_caja,detail_service,num_cuenta,
+                                   valor)
+    {
+        try {
+            var conn = await connDB()
+            var sql = "EXECUTE PROCEDURE cnxprc_reg_nddct('"+cod_empresa+"','"+cod_oficina+"','"+cod_caja+"','"+detail_service+"','"+num_cuenta+"','',(SELECT UNIQUE(servi_cod_ccnta) FROM cnxservi WHERE servi_cod_tasie = 1 AND servi_des_servi LIKE '%FACILITO%'),'"+valor+"','','','','','','','','','"+valor+"',1)"
+            var response = await conn.query(sql)
+            await conn.close()
+            return {data:response}
+        }catch (e) {
+            return {error:e.toString()}
+        }
+    }
 }
 
 module.exports = TransactionModel
